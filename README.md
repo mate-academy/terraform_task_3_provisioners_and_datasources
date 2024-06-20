@@ -8,8 +8,7 @@ This task involves defining additional resources, using provisioners to install 
 - Terraform installed on your machine.
 - Azure CLI installed and configured.
 
-## Hands-on Task: Working with Terraform — Advanced Configuration
-
+## Hands-on Task
 1. Fork this repository.
 2. Create a resource group manually in the Azure portal.
 3. Retrieve the information from the resource group using a datasource for `azurerm_virtual_network`, `azurerm_network_interface`, `azurerm_subnet`, and `azurerm_virtual_machine`.
