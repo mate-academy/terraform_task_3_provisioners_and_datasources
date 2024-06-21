@@ -1,4 +1,4 @@
-# Creating an Azure Virtual Machine with Nginx web server
+# Creating an Azure Virtual Machine With Nginx Web Server
 
 This task involves defining additional resources, using provisioners to install software and configure the VM, and utilizing Terraform datasources.
 
@@ -8,7 +8,7 @@ This task involves defining additional resources, using provisioners to install 
 - Terraform installed on your machine.
 - Azure CLI installed and configured.
 
-## Hands-on Task: Working with Terraform — Advanced Configuration
+## Hands-on Task: Working With Terraform — Advanced Configuration
 
 1. Fork this repository.
 2. Create a resource group manually in the Azure portal.
