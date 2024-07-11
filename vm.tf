@@ -11,6 +11,13 @@ resource "azurerm_virtual_machine" "main" {
   # Uncomment this line to delete the data disks automatically when deleting the VM
   # delete_data_disks_on_termination = true
 
+  connection {
+    type     = var.connection_type
+    user     = var.connection_user
+    password = var.connection_password
+    host     = azurerm_public_ip.public_ip.ip_address
+  }
+
   provisioner "local-exec" {
     command = <<EOT
     touch index.html && echo 'This is the default page for inginx' > index.html
@@ -20,23 +27,9 @@ resource "azurerm_virtual_machine" "main" {
   provisioner "file" {
     source      = "./index.html"
     destination = "/home/testadmin/index.html"
-
-    connection {
-      type     = "ssh"
-      user     = "testadmin"
-      password = "Password1234!"
-      host     = azurerm_public_ip.public_ip.ip_address
-    }
   }
 
   provisioner "remote-exec" {
-    connection {
-      type     = "ssh"
-      user     = "testadmin"
-      password = "Password1234!"
-      host     = azurerm_public_ip.public_ip.ip_address
-    }
-
     inline = [
       "sudo apt-get update -y",
       "sudo apt-get install -y nginx",
@@ -45,11 +38,12 @@ resource "azurerm_virtual_machine" "main" {
   }
 
   storage_image_reference {
-    publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-jammy"
-    sku       = "22_04-lts"
-    version   = "latest"
+    publisher = var.image_publisher
+    offer     = var.image_offer
+    sku       = var.image_sku
+    version   = var.image_version
   }
+
   storage_os_disk {
     name              = "myosdisk1"
     caching           = "ReadWrite"
