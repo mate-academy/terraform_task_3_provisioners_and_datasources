@@ -1,20 +1,3 @@
-terraform {
-  required_providers {
-    azurerm = {
-      source = "hashicorp/azurerm"
-      version = "3.105.0"
-    }
-  }
-}
-
-provider "azurerm" {
-  features {}
-}
-
-variable "prefix" {
-  default = "tfvmex"
-}
-
 resource "azurerm_resource_group" "example" {
   name     = "${var.prefix}-resources"
   location = "West Europe"
@@ -81,5 +64,29 @@ resource "azurerm_virtual_machine" "main" {
   }
   tags = {
     environment = "staging"
+  }
+  connection {
+    type     = "ssh"
+    user     = "testadmin"
+    password = "Password1234!"
+    host     = azurerm_network_interface.main.private_ip_address
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt-get update",
+      "sudo apt-get install -y nginx"
+    ]
+  }
+
+  provisioner "file" {
+    source      = "index.html"
+    destination = "/tmp/index.html"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mv /tmp/index.html /var/www/html/index.html"
+    ]
   }
 }
