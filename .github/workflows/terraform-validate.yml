@@ -20,8 +20,8 @@ jobs:
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3
       with:
-        terraform_version: 1.8.4
-    
+        terraform_version: 1.9.3
+
     - name: Check variables.tf
       run: |
         if [ ! -f variables.tf ]; then
