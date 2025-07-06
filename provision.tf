@@ -1,11 +1,23 @@
-resource "null_resource" "wait_for_ip" {
-  provisioner "local-exec" {
-    command = "echo Public IP: ${azurerm_public_ip.main.ip_address}"
+resource "null_resource" "wait_for_ssh" {
+  depends_on = [data.azurerm_network_interface.main]
+
+  provisioner "remote-exec" {
+    connection {
+      type     = "ssh"
+      user     = "testadmin"
+      password = "Password1234!"
+      host     = data.azurerm_public_ip.main.ip_address
+    }
+
+    inline = [
+      "while ! nc -zv ${data.azurerm_public_ip.main.ip_address} 22; do echo 'Waiting for SSH...' && sleep 5; done",
+      "echo 'SSH is ready!'"
+    ]
   }
 }
 
 resource "null_resource" "vm_provision" {
-  depends_on = [null_resource.wait_for_ip]
+  depends_on = [null_resource.wait_for_ssh]
 
   connection {
     type     = "ssh"
