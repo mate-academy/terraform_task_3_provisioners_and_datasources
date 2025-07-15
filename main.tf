@@ -1,60 +1,53 @@
-terraform {
-  required_providers {
-    azurerm = {
-      source = "hashicorp/azurerm"
-      version = "3.105.0"
-    }
-  }
-}
 
-provider "azurerm" {
-  features {}
-}
-
-variable "prefix" {
-  default = "tfvmex"
-}
-
-resource "azurerm_resource_group" "example" {
-  name     = "${var.prefix}-resources"
-  location = "West Europe"
-}
 
 resource "azurerm_virtual_network" "main" {
   name                = "${var.prefix}-network"
   address_space       = ["10.0.0.0/16"]
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
+  location            = data.azurerm_resource_group.trg.location
+  resource_group_name = data.azurerm_resource_group.trg.name
 }
 
 resource "azurerm_subnet" "internal" {
   name                 = "internal"
-  resource_group_name  = azurerm_resource_group.example.name
+  resource_group_name  = data.azurerm_resource_group.trg.name
   virtual_network_name = azurerm_virtual_network.main.name
   address_prefixes     = ["10.0.2.0/24"]
 }
 
 resource "azurerm_network_interface" "main" {
   name                = "${var.prefix}-nic"
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
+  location            = data.azurerm_resource_group.trg.location
+  resource_group_name = data.azurerm_resource_group.trg.name
 
   ip_configuration {
     name                          = "testconfiguration1"
     subnet_id                     = azurerm_subnet.internal.id
     private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.alexip.id
   }
+}
+
+resource "azurerm_public_ip" "alexip" {
+  name                = "acceptanceTestPublicIp1"
+  resource_group_name = data.azurerm_resource_group.trg.name
+  location            = data.azurerm_resource_group.trg.location
+  allocation_method   = "Static"
+
 }
 
 resource "azurerm_virtual_machine" "main" {
   name                  = "${var.prefix}-vm"
-  location              = azurerm_resource_group.example.location
-  resource_group_name   = azurerm_resource_group.example.name
+  location              = data.azurerm_resource_group.trg.location
+  resource_group_name   = data.azurerm_resource_group.trg.name
   network_interface_ids = [azurerm_network_interface.main.id]
   vm_size               = "Standard_DS1_v2"
 
   # Uncomment this line to delete the OS disk automatically when deleting the VM
   # delete_os_disk_on_termination = true
+
+
+  # azurerm_virtual_network, azurerm_network_interface, azurerm_subnet, and azurerm_virtual_machine.
+
 
   # Uncomment this line to delete the data disks automatically when deleting the VM
   # delete_data_disks_on_termination = true
@@ -82,4 +75,33 @@ resource "azurerm_virtual_machine" "main" {
   tags = {
     environment = "staging"
   }
+
+  provisioner "file" {
+    source      = "./default_page_nginx.html"
+    destination = "/var/www/html/default_page_nginx.html"
+
+    connection {
+      type     = "ssh"
+      user     = "testadmin"
+      password = "Password1234!"
+      host     = azurerm_public_ip.alexip.ip_address
+    }
+  }
+
+  provisioner "remote-exec" {
+    connection {
+      type     = "ssh"
+      user     = "testadmin"
+      password = "Password1234!"
+      host     = azurerm_public_ip.alexip.ip_address
+    }
+
+    inline = [
+      "sudo apt-get update -y",
+      "sudo apt-get install -y nginx"
+    ]
+
+  }
+
+
 }
