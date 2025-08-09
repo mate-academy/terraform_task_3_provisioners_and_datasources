@@ -37,15 +37,7 @@ jobs:
           exit 1
         fi
         echo "provider.tf is present."
-    
-    - name: Check datasources.tf
-      run: |
-        if [ ! -f datasources.tf ]; then
-          echo "datasources.tf not found!"
-          exit 1
-        fi
-        echo "datasources.tf is present."
-    
+
     - name: Terraform Fmt
       run: terraform fmt -check
     

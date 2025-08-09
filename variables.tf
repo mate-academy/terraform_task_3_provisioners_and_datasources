@@ -13,5 +13,7 @@ variable "vm_admin_username" {
 }
 
 variable "vm_admin_password" {
-  default = "Password1234!"
+  description = "The admin password for the VM"
+  type        = string
+  sensitive   = true
 }
