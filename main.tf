@@ -1,85 +1,66 @@
-terraform {
-  required_providers {
-    azurerm = {
-      source = "hashicorp/azurerm"
-      version = "3.105.0"
-    }
-  }
+# Рендеринг шаблону HTML
+resource "local_file" "index_html" {
+  filename = "index.html"
+  content  = templatefile("${path.module}/index.html.tpl", {
+    vm_name     = data.azurerm_virtual_machine.main.name
+    vm_size     = data.azurerm_virtual_machine.main.size
+    vm_location = data.azurerm_virtual_machine.main.location
+    public_ip   = local.public_ip_address
+  })
 }
 
-provider "azurerm" {
-  features {}
+# Створення файлу з інформацією про віртуальну машину
+resource "local_file" "vm_info" {
+  filename = "vm_info.txt"
+  content  = <<-EOT
+Інформація про віртуальну машину:
+Назва: ${data.azurerm_virtual_machine.main.name}
+Розмір: ${data.azurerm_virtual_machine.main.size}
+Локація: ${data.azurerm_virtual_machine.main.location}
+Публічна IP-адреса: ${local.public_ip_address}
+Статус: ${data.azurerm_virtual_machine.main.power_state}
+EOT
 }
 
-variable "prefix" {
-  default = "tfvmex"
-}
+# Null resource для встановлення та налаштування Nginx
+resource "null_resource" "nginx_setup" {
+  count = local.has_public_ip ? 1 : 0
 
-resource "azurerm_resource_group" "example" {
-  name     = "${var.prefix}-resources"
-  location = "West Europe"
-}
-
-resource "azurerm_virtual_network" "main" {
-  name                = "${var.prefix}-network"
-  address_space       = ["10.0.0.0/16"]
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
-}
-
-resource "azurerm_subnet" "internal" {
-  name                 = "internal"
-  resource_group_name  = azurerm_resource_group.example.name
-  virtual_network_name = azurerm_virtual_network.main.name
-  address_prefixes     = ["10.0.2.0/24"]
-}
-
-resource "azurerm_network_interface" "main" {
-  name                = "${var.prefix}-nic"
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
-
-  ip_configuration {
-    name                          = "testconfiguration1"
-    subnet_id                     = azurerm_subnet.internal.id
-    private_ip_address_allocation = "Dynamic"
+  # Підключення до віртуальної машини
+  connection {
+    type     = "ssh"
+    user     = var.admin_username
+    password = var.admin_password
+    host     = local.public_ip_address
+    timeout  = "10m"
   }
-}
 
-resource "azurerm_virtual_machine" "main" {
-  name                  = "${var.prefix}-vm"
-  location              = azurerm_resource_group.example.location
-  resource_group_name   = azurerm_resource_group.example.name
-  network_interface_ids = [azurerm_network_interface.main.id]
-  vm_size               = "Standard_DS1_v2"
+  # Встановлення Nginx
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt-get update -y",
+      "sudo apt-get install -y nginx",
+      "sudo systemctl start nginx",
+      "sudo systemctl enable nginx"
+    ]
+  }
 
-  # Uncomment this line to delete the OS disk automatically when deleting the VM
-  # delete_os_disk_on_termination = true
+  # Завантаження HTML-сторінки
+  provisioner "file" {
+    source      = "${path.module}/index.html"
+    destination = "/tmp/index.html"
+  }
 
-  # Uncomment this line to delete the data disks automatically when deleting the VM
-  # delete_data_disks_on_termination = true
+  # Налаштування Nginx
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mv /tmp/index.html /var/www/html/index.html",
+      "sudo chown www-data:www-data /var/www/html/index.html",
+      "sudo chmod 644 /var/www/html/index.html",
+      "sudo systemctl restart nginx",
+      "echo 'Nginx successfully installed and configured!'"
+    ]
+  }
 
-  storage_image_reference {
-    publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-jammy"
-    sku       = "22_04-lts"
-    version   = "latest"
-  }
-  storage_os_disk {
-    name              = "myosdisk1"
-    caching           = "ReadWrite"
-    create_option     = "FromImage"
-    managed_disk_type = "Standard_LRS"
-  }
-  os_profile {
-    computer_name  = "hostname"
-    admin_username = "testadmin"
-    admin_password = "Password1234!"
-  }
-  os_profile_linux_config {
-    disable_password_authentication = false
-  }
-  tags = {
-    environment = "staging"
-  }
+  depends_on = [local_file.index_html]
 }

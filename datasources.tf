@@ -1,0 +1,41 @@
+# Отримання даних про існуючу групу ресурсів
+data "azurerm_resource_group" "main" {
+  name = var.resource_group_name
+}
+
+# Отримання даних про існуючу віртуальну мережу
+data "azurerm_virtual_network" "main" {
+  name                = var.virtual_network_name
+  resource_group_name = data.azurerm_resource_group.main.name
+}
+
+# Отримання даних про існуючу підмережу
+data "azurerm_subnet" "main" {
+  name                 = var.subnet_name
+  virtual_network_name = data.azurerm_virtual_network.main.name
+  resource_group_name  = data.azurerm_resource_group.main.name
+}
+
+# Отримання даних про існуючий мережевий інтерфейс
+data "azurerm_network_interface" "main" {
+  name                = var.network_interface_name
+  resource_group_name = data.azurerm_resource_group.main.name
+}
+
+# Отримання даних про існуючу віртуальну машину
+data "azurerm_virtual_machine" "main" {
+  name                = var.virtual_machine_name
+  resource_group_name = data.azurerm_resource_group.main.name
+}
+
+# Отримання даних про публічну IP-адресу (надійний спосіб)
+data "azurerm_public_ip" "main" {
+  name                = try(reverse(split("/", data.azurerm_network_interface.main.ip_configuration[0].public_ip_address_id))[0], "")
+  resource_group_name = data.azurerm_resource_group.main.name
+}
+
+# Локалі для надійної обробки публічної IP-адреси
+locals {
+  public_ip_address = try(data.azurerm_public_ip.main.ip_address, "")
+  has_public_ip     = local.public_ip_address != ""
+}
