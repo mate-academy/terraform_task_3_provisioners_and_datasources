@@ -91,10 +91,8 @@ resource "azurerm_virtual_machine" "main" {
 
     inline = [
       "sudo apt-get update -y",
-      "sudo apt-get install -y nginx"
+      "sudo apt-get install -y nginx",
+      "sudo systemctl enable --now nginx"
     ]
   }
 }
-
-
-
