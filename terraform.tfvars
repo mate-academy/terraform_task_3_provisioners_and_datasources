@@ -1,0 +1,7 @@
+resource_group_name    = "mate-terraform-task-rg"
+virtual_network_name   = "mate-terraform-task-network"
+subnet_name            = "internal"
+network_interface_name = "mate-terraform-task-nic"
+virtual_machine_name   = "mate-terraform-task-vm"
+vm_user                = "vsupruniuk"
+ssh_key_path           = "~/.ssh/id_rsa_azure"
