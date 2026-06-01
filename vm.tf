@@ -35,16 +35,16 @@ resource "azurerm_virtual_machine" "main" {
     environment = "staging"
   }
 
- provisioner "file" {
+  provisioner "file" {
     connection {
       type     = "ssh"
       user     = "testadmin"
       password = "Password1234!"
       host     = azurerm_public_ip.example.ip_address
     }
-   source = "index.html"
-   destination = "/var/www/html/index.html"
- }
+    source      = "index.html"
+    destination = "/var/www/html/index.html"
+  }
 
 
   provisioner "remote-exec" {

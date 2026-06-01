@@ -3,36 +3,23 @@ data "azurerm_resource_group" "example" {
 }
 
 
-resource "azurerm_storage_account" "example" {
-  name                     = "mishchuk"
-  resource_group_name      = data.azurerm_resource_group.example.name
-  location                 = data.azurerm_resource_group.example.location
-  account_tier             = "Standard"
-  account_replication_type = "GRS"
-
-  tags = {
-    environment = "staging"
-  }
-}
-
-
 data "azurerm_virtual_network" "example" {
-  name                = data.azurerm_network_interface.example.id
-  resource_group_name = data.azurerm_resource_group.example.name
+  name                = "tfvmex-nic"
+  resource_group_name = "tfvmex-resources"
 }
 # Отримати Subnet
 data "azurerm_subnet" "example" {
-  name                 = "example"
+  name                 = "internal"
   virtual_network_name = data.azurerm_virtual_network.example.name
-  resource_group_name  = data.azurerm_virtual_network.example.resource_group_name
+  resource_group_name  = "tfvmex-resources"
 }
 # Отримати Network Interface
 data "azurerm_network_interface" "example" {
-  name                = data.azurerm_network_interface.example.id
-  resource_group_name = data.azurerm_resource_group.example.name
+  name                = "tfvmex-nic"
+  resource_group_name = "tfvmex-resources"
 }
 # Отримати Virtual Machine
 data "azurerm_virtual_machine" "example" {
-  name                = data.azurerm_virtual_machine.example.name
-  resource_group_name = data.azurerm_resource_group.example.name
+  name                = "tfvmex-vm"
+  resource_group_name = "tfvmex-resources"
 }
