@@ -43,7 +43,7 @@ resource "azurerm_virtual_machine" "main" {
       host     = azurerm_public_ip.example.ip_address
     }
    source = "index.html"
-   destination = "/home/testadmin/index.html"
+   destination = "/var/www/html/index.html"
  }
 
 
