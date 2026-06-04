@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Task 3 Nginx</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(135deg, #f7f9fc, #dce8ff);
+        color: #102247;
+      }
+
+      .card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 10px 30px rgba(16, 34, 71, 0.12);
+        max-width: 680px;
+        text-align: center;
+      }
+
+      h1 {
+        margin-top: 0;
+      }
+
+      p {
+        margin-bottom: 0;
+        line-height: 1.6;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <h1>Nginx is running</h1>
+      <p>
+        This page was uploaded by Terraform file provisioner and served by Nginx
+        installed using remote-exec.
+      </p>
+    </main>
+  </body>
+</html>
