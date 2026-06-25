@@ -17,3 +17,23 @@ This task involves defining additional resources, using provisioners to install 
 6. Use the `file` provisioner to pass the default page for Nginx.
 7. Plan and apply Terraform changes using the `tfplan` file.
 8. Separate the code between `provider.tf`, `variables.tf`, and `datasources.tf`.
+
+## Usage
+
+The Azure resource group, virtual network, subnet, network interface and
+virtual machine are created **manually** in the Azure portal. Terraform only
+reads them through datasources and then runs the `file` and `remote-exec`
+provisioners (via a `null_resource`) to install Nginx and publish the default
+page.
+
+Provide the names of the manually created resources through the variables in
+`variables.tf` (or a `*.tfvars` file), then run:
+
+```bash
+terraform init
+terraform plan -out=tfplan
+terraform apply tfplan
+```
+
+`terraform plan -out=tfplan` saves the execution plan to the `tfplan` file and
+`terraform apply tfplan` applies exactly that saved plan.
