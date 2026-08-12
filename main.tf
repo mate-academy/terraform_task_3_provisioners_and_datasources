@@ -1,29 +1,29 @@
 resource "azurerm_virtual_network" "main" {
   name                = "${var.prefix}-network"
   address_space       = ["10.0.0.0/16"]
-  location            = data.azurerm_resource_group.main.location
-  resource_group_name = data.azurerm_resource_group.main.name
+  location            = var.location
+  resource_group_name = var.resource_group_name
 }
 
 resource "azurerm_subnet" "internal" {
   name                 = "internal"
-  resource_group_name  = data.azurerm_resource_group.main.name
+  resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.main.name
   address_prefixes     = ["10.0.2.0/24"]
 }
 
 resource "azurerm_public_ip" "main" {
   name                = "${var.prefix}-pip"
-  location            = data.azurerm_resource_group.main.location
-  resource_group_name = data.azurerm_resource_group.main.name
+  location            = var.location
+  resource_group_name = var.resource_group_name
   allocation_method   = "Static"
   sku                 = "Standard"
 }
 
 resource "azurerm_network_security_group" "main" {
   name                = "${var.prefix}-nsg"
-  location            = data.azurerm_resource_group.main.location
-  resource_group_name = data.azurerm_resource_group.main.name
+  location            = var.location
+  resource_group_name = var.resource_group_name
 
   security_rule {
     name                       = "SSH"
@@ -52,8 +52,8 @@ resource "azurerm_network_security_group" "main" {
 
 resource "azurerm_network_interface" "main" {
   name                = "${var.prefix}-nic"
-  location            = data.azurerm_resource_group.main.location
-  resource_group_name = data.azurerm_resource_group.main.name
+  location            = var.location
+  resource_group_name = var.resource_group_name
 
   ip_configuration {
     name                          = "testconfiguration1"
@@ -70,8 +70,8 @@ resource "azurerm_network_interface_security_group_association" "main" {
 
 resource "azurerm_virtual_machine" "main" {
   name                  = "${var.prefix}-vm"
-  location              = data.azurerm_resource_group.main.location
-  resource_group_name   = data.azurerm_resource_group.main.name
+  location              = var.location
+  resource_group_name   = var.resource_group_name
   network_interface_ids = [azurerm_network_interface.main.id]
   vm_size               = "Standard_DS1_v2"
 
@@ -117,9 +117,9 @@ resource "azurerm_virtual_machine" "main" {
 
   provisioner "remote-exec" {
     inline = [
-      "cloud-init status --wait",
-      "sudo apt-get update -y",
+      "sudo apt-get update",
       "sudo apt-get install -y nginx",
+      "sudo cp /home/${var.admin_username}/index.html /var/www/html/index.nginx-debian.html",
       "sudo cp /home/${var.admin_username}/index.html /var/www/html/index.html",
       "sudo systemctl enable nginx",
       "sudo systemctl restart nginx",
