@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome to nginx!</title>
+<style>
+  :root {
+    --bg: #0b0f14;
+    --panel: #10161d;
+    --line: #1e2830;
+    --text: #e6edf3;
+    --muted: #8b98a5;
+    --accent: #2ea34b;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  main {
+    max-width: 560px;
+    width: 100%;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 40px;
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .status::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 4px rgba(46, 163, 75, 0.15);
+  }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 600;
+    margin: 0 0 12px;
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    color: var(--muted);
+    line-height: 1.6;
+    margin: 0 0 8px;
+    font-size: 15px;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--line);
+    margin: 28px 0;
+  }
+
+  .meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .meta a {
+    color: var(--text);
+    text-decoration: none;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .meta a:hover {
+    border-bottom-color: var(--muted);
+  }
+
+  code {
+    background: rgba(255,255,255,0.06);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+  <main>
+    <div class="status">Server running</div>
+    <h1>Welcome to nginx!</h1>
+    <p>If you can see this page, the nginx web server is successfully installed and serving this file.</p>
+    <p>This is the default page. Replace <code>/var/www/html/index.html</code> (or your configured document root) with your own content when you're ready.</p>
+    <div class="divider"></div>
+    <div class="meta">
+      <span>nginx</span>
+      <a href="https://nginx.org/en/docs/" target="_blank" rel="noopener">Documentation</a>
+    </div>
+  </main>
+</body>
+</html>

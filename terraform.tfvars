@@ -1,0 +1,7 @@
+resource_group_name = "mate-tf-task-3"
+vnet_name           = "tfvmex-network"
+public_ip_name      = "tfvmex-pip"
+subnet_name         = "internal"
+nsg_name            = "tfvmex-nsg"
+nic_name            = "tfvmex-nic"
+vm_name             = "tfvmex-vm"
