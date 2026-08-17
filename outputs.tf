@@ -4,5 +4,6 @@ output "vm_public_ip" {
 }
 
 output "resource_group_location" {
-  value = data.azurerm_resource_group.example.location
+  description = "Локація ресурсної групи"
+  value       = data.azurerm_resource_group.example.location
 }

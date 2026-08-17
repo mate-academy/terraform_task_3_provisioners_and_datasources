@@ -12,7 +12,7 @@ resource "azurerm_subnet" "internal" {
   address_prefixes     = ["10.0.2.0/24"]
 }
 
-# Публічна IP — потрібна для SSH-доступу провіжнерів file / remote-exec
+# Публічна IP — потрібна для SSH-доступу провижнерів file / remote-exec
 resource "azurerm_public_ip" "main" {
   name                = "${var.prefix}-public-ip"
   location            = data.azurerm_resource_group.example.location

@@ -1,24 +1,22 @@
-variable "prefix" {
-  description = "Префікс для назв ресурсів"
-  type        = string
-  default     = "tfvmex"
-}
-
 variable "resource_group_name" {
-  description = "Назва Resource Group, створеної вручну в Azure Portal"
   type        = string
+  description = "Name of the manually-created Azure resource group"
   default     = "tfvmex-resources"
 }
 
-variable "admin_username" {
-  description = "Логін адміністратора VM"
+variable "prefix" {
   type        = string
-  default     = "testadmin"
+  description = "Prefix used for naming created resources"
+  default     = "tfvmex"
+}
+
+variable "admin_username" {
+  type        = string
+  description = "Admin username for the VM"
 }
 
 variable "admin_password" {
-  description = "Пароль адміністратора VM"
   type        = string
-  default     = "Password1234!"
+  description = "Admin password for the VM"
   sensitive   = true
 }
