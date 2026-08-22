@@ -4,16 +4,16 @@ resource "azurerm_resource_group" "example" {
 }
 
 resource "azurerm_virtual_network" "main" {
-  name                = "${var.prefix}-network"
+  name                = data.azurerm_virtual_network.example.name
   address_space       = ["10.0.0.0/16"]
   location            = data.azurerm_resource_group.example.location
   resource_group_name = data.azurerm_resource_group.example.name
 }
 
 resource "azurerm_subnet" "internal" {
-  name                 = "internal"
+  name                 = data.azurerm_subnet.example.name
   resource_group_name  = data.azurerm_resource_group.example.name
-  virtual_network_name = azurerm_virtual_network.main.name
+  virtual_network_name = data.azurerm_subnet.example.virtual_network_name
   address_prefixes     = ["10.0.2.0/24"]
 }
 
@@ -25,7 +25,7 @@ resource "azurerm_public_ip" "example" {
 }
 
 resource "azurerm_network_interface" "main" {
-  name                = "${var.prefix}-nic"
+  name                = data.azurerm_network_interface.example.name
   location            = data.azurerm_resource_group.example.location
   resource_group_name = data.azurerm_resource_group.example.name
 
@@ -38,7 +38,7 @@ resource "azurerm_network_interface" "main" {
 }
 
 resource "azurerm_virtual_machine" "main" {
-  name                  = "${var.prefix}-vm"
+  name                  = data.azurerm_virtual_machine.example.name
   location              = data.azurerm_resource_group.example.location
   resource_group_name   = data.azurerm_resource_group.example.name
   network_interface_ids = [azurerm_network_interface.main.id]
