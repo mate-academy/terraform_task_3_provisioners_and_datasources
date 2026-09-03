@@ -80,7 +80,7 @@ resource "azurerm_virtual_machine" "main" {
   }
   provisioner "file" {
     source      = "./file.txt"
-    destination = "/home/testadmin/file.txt"
+    destination = "/home/testadmin/index.html"
 
     connection {
       type     = "ssh"
@@ -100,7 +100,7 @@ resource "azurerm_virtual_machine" "main" {
     inline = [
       "sudo apt-get update -y",
       "sudo apt-get install -y nginx",
-      "sudo cp /home/testadmin/file.txt /var/www/html/index.html"
+      "sudo cp /home/testadmin/index.html /var/www/html/index.html"
     ]
   }
 }
