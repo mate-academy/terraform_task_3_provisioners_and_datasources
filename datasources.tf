@@ -1,20 +1,24 @@
+data "azurerm_resource_group" "task-3-rg" {
+  name = "task-3-rg"
+}
+
 data "azurerm_virtual_network" "main" {
-  name                = azurerm_virtual_network.main.name
+  name                = "tfvmex-network"
   resource_group_name = data.azurerm_resource_group.task-3-rg.name
 }
 
 data "azurerm_subnet" "internal" {
-  name                 = azurerm_subnet.internal.name
+  name                 = "internal"
   resource_group_name  = data.azurerm_resource_group.task-3-rg.name
   virtual_network_name = data.azurerm_virtual_network.main.name
 }
 
 data "azurerm_network_interface" "main" {
-  name                = azurerm_network_interface.main.name
+  name                = "tfvmex-nic"
   resource_group_name = data.azurerm_resource_group.task-3-rg.name
 }
 
 data "azurerm_virtual_machine" "main" {
-  name                = azurerm_virtual_machine.main.name
+  name                = "tfvmex-vm"
   resource_group_name = data.azurerm_resource_group.task-3-rg.name
 }
