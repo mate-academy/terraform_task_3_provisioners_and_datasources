@@ -1,85 +1,69 @@
-terraform {
-  required_providers {
-    azurerm = {
-      source = "hashicorp/azurerm"
-      version = "3.105.0"
-    }
+resource "azurerm_network_security_group" "example" {
+  name                = "acceptanceTestSecurityGroup1"
+  location            = data.azurerm_resource_group.task-3-rg.location
+  resource_group_name = data.azurerm_resource_group.task-3-rg.name
+
+  security_rule {
+    name                       = "AllowSSH"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "AllowHTTP"
+    priority                   = 110
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "80"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
   }
 }
 
-provider "azurerm" {
-  features {}
+resource "azurerm_network_interface_security_group_association" "example" {
+  network_interface_id      = data.azurerm_network_interface.main.id
+  network_security_group_id = azurerm_network_security_group.example.id
 }
 
-variable "prefix" {
-  default = "tfvmex"
-}
 
-resource "azurerm_resource_group" "example" {
-  name     = "${var.prefix}-resources"
-  location = "West Europe"
-}
+resource "terraform_data" "nginx_provisioning" {
 
-resource "azurerm_virtual_network" "main" {
-  name                = "${var.prefix}-network"
-  address_space       = ["10.0.0.0/16"]
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
-}
-
-resource "azurerm_subnet" "internal" {
-  name                 = "internal"
-  resource_group_name  = azurerm_resource_group.example.name
-  virtual_network_name = azurerm_virtual_network.main.name
-  address_prefixes     = ["10.0.2.0/24"]
-}
-
-resource "azurerm_network_interface" "main" {
-  name                = "${var.prefix}-nic"
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
-
-  ip_configuration {
-    name                          = "testconfiguration1"
-    subnet_id                     = azurerm_subnet.internal.id
-    private_ip_address_allocation = "Dynamic"
+  connection {
+    type     = "ssh"
+    user     = "testadmin"
+    password = "Password1234!"
+    host     = data.azurerm_public_ip.public_ip.ip_address
   }
-}
+  provisioner "remote-exec" {
 
-resource "azurerm_virtual_machine" "main" {
-  name                  = "${var.prefix}-vm"
-  location              = azurerm_resource_group.example.location
-  resource_group_name   = azurerm_resource_group.example.name
-  network_interface_ids = [azurerm_network_interface.main.id]
-  vm_size               = "Standard_DS1_v2"
+    inline = [
+      "sudo apt-get update -y",
+      "sudo apt-get install -y nginx"
+    ]
+  }
 
-  # Uncomment this line to delete the OS disk automatically when deleting the VM
-  # delete_os_disk_on_termination = true
+  provisioner "file" {
+    source      = "./index.html"
+    destination = "/home/testadmin/index.html"
 
-  # Uncomment this line to delete the data disks automatically when deleting the VM
-  # delete_data_disks_on_termination = true
+  }
 
-  storage_image_reference {
-    publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-jammy"
-    sku       = "22_04-lts"
-    version   = "latest"
+  provisioner "remote-exec" {
+
+    inline = [
+      "sudo mv /home/testadmin/index.html /var/www/html/index.html"
+    ]
   }
-  storage_os_disk {
-    name              = "myosdisk1"
-    caching           = "ReadWrite"
-    create_option     = "FromImage"
-    managed_disk_type = "Standard_LRS"
-  }
-  os_profile {
-    computer_name  = "hostname"
-    admin_username = "testadmin"
-    admin_password = "Password1234!"
-  }
-  os_profile_linux_config {
-    disable_password_authentication = false
-  }
-  tags = {
-    environment = "staging"
-  }
+
+  depends_on = [
+    azurerm_network_interface_security_group_association.example
+  ]
 }
