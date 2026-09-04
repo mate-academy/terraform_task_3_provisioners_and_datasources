@@ -22,3 +22,8 @@ data "azurerm_virtual_machine" "main" {
   name                = "tfvmex-vm"
   resource_group_name = data.azurerm_resource_group.task-3-rg.name
 }
+
+data "azurerm_public_ip" "public_ip" {
+  name                = "tfvmex-public-ip"
+  resource_group_name = data.azurerm_resource_group.task-3-rg.name
+}

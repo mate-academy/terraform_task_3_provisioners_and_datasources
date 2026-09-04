@@ -40,7 +40,7 @@ resource "terraform_data" "nginx_provisioning" {
     type     = "ssh"
     user     = "testadmin"
     password = "Password1234!"
-    host     = data.azurerm_virtual_machine.main.public_ip_address
+    host     = data.azurerm_public_ip.public_ip.ip_address
   }
   provisioner "remote-exec" {
 
