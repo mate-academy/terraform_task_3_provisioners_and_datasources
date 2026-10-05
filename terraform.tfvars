@@ -1,0 +1,7 @@
+resource_group_name    = "mate-nginx-rg"
+virtual_network_name   = "mate-nginx-vmVNET"
+subnet_name            = "mate-nginx-vmSubnet"
+network_interface_name = "mate-nginx-vmVMNic"
+virtual_machine_name   = "mate-nginx-vm"
+admin_username         = "azureuser"
+private_key_path       = "C:/Users/Tetiana Mohorian/.ssh/id_rsa"
