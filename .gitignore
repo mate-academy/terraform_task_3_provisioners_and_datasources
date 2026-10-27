@@ -1,0 +1,10 @@
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+terraform.tfvars
+*.auto.tfvars
+
+# This educational repository's CI explicitly requires tfplan in the PR.
+# Saved plan files should normally be ignored in real projects.

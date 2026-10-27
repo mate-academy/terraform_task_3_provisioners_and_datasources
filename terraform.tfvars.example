@@ -1,0 +1,9 @@
+resource_group_name = "mate-terraform-task-3-rg"
+prefix              = "mate-tf3"
+admin_username      = "azureadmin"
+ssh_public_key_path = "~/.ssh/id_ed25519.pub"
+
+# For a real project, replace this with your public IP followed by /32.
+ssh_allowed_cidr = "0.0.0.0/0"
+
+vm_size = "Standard_B1s"
