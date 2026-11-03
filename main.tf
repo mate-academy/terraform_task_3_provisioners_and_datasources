@@ -79,7 +79,7 @@ resource "azurerm_virtual_machine" "main" {
     environment = "staging"
   }
   provisioner "file" {
-    source      = "./file.txt"
+    source      = "/index.html"
     destination = "/home/testadmin/index.html"
 
     connection {
