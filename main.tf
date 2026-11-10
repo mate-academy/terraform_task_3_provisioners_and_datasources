@@ -1,85 +1,45 @@
-terraform {
-  required_providers {
-    azurerm = {
-      source = "hashicorp/azurerm"
-      version = "3.105.0"
-    }
+resource "terraform_data" "nginx" {
+  triggers_replace = [
+    data.azurerm_virtual_machine.main.id,
+    filesha256("${path.module}/index.html"),
+  ]
+
+  connection {
+    type        = "ssh"
+    host        = data.azurerm_virtual_machine.main.public_ip_address
+    user        = var.admin_username
+    private_key = sensitive(file(pathexpand(var.ssh_private_key_path)))
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/index.html"
+    destination = "/home/${var.admin_username}/terraform-nginx-index.html"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "set -eu",
+      "sudo apt-get -o Acquire::Retries=3 update",
+      "sudo env DEBIAN_FRONTEND=noninteractive apt-get -o DPkg::Lock::Timeout=120 -o Acquire::Retries=3 install -y nginx",
+      "sudo install -m 0644 \"$HOME/terraform-nginx-index.html\" /var/www/html/index.html",
+      "sudo nginx -t",
+      "sudo systemctl enable --now nginx",
+    ]
   }
 }
 
-provider "azurerm" {
-  features {}
+output "nginx_url" {
+  description = "URL of the Nginx default page."
+  value       = "http://${data.azurerm_virtual_machine.main.public_ip_address}/"
+  depends_on  = [terraform_data.nginx]
 }
 
-variable "prefix" {
-  default = "tfvmex"
-}
-
-resource "azurerm_resource_group" "example" {
-  name     = "${var.prefix}-resources"
-  location = "West Europe"
-}
-
-resource "azurerm_virtual_network" "main" {
-  name                = "${var.prefix}-network"
-  address_space       = ["10.0.0.0/16"]
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
-}
-
-resource "azurerm_subnet" "internal" {
-  name                 = "internal"
-  resource_group_name  = azurerm_resource_group.example.name
-  virtual_network_name = azurerm_virtual_network.main.name
-  address_prefixes     = ["10.0.2.0/24"]
-}
-
-resource "azurerm_network_interface" "main" {
-  name                = "${var.prefix}-nic"
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
-
-  ip_configuration {
-    name                          = "testconfiguration1"
-    subnet_id                     = azurerm_subnet.internal.id
-    private_ip_address_allocation = "Dynamic"
-  }
-}
-
-resource "azurerm_virtual_machine" "main" {
-  name                  = "${var.prefix}-vm"
-  location              = azurerm_resource_group.example.location
-  resource_group_name   = azurerm_resource_group.example.name
-  network_interface_ids = [azurerm_network_interface.main.id]
-  vm_size               = "Standard_DS1_v2"
-
-  # Uncomment this line to delete the OS disk automatically when deleting the VM
-  # delete_os_disk_on_termination = true
-
-  # Uncomment this line to delete the data disks automatically when deleting the VM
-  # delete_data_disks_on_termination = true
-
-  storage_image_reference {
-    publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-jammy"
-    sku       = "22_04-lts"
-    version   = "latest"
-  }
-  storage_os_disk {
-    name              = "myosdisk1"
-    caching           = "ReadWrite"
-    create_option     = "FromImage"
-    managed_disk_type = "Standard_LRS"
-  }
-  os_profile {
-    computer_name  = "hostname"
-    admin_username = "testadmin"
-    admin_password = "Password1234!"
-  }
-  os_profile_linux_config {
-    disable_password_authentication = false
-  }
-  tags = {
-    environment = "staging"
+output "azure_resource_ids" {
+  description = "Resource IDs retrieved by the Azure data sources."
+  value = {
+    virtual_network   = data.azurerm_virtual_network.main.id
+    subnet            = data.azurerm_subnet.internal.id
+    network_interface = data.azurerm_network_interface.main.id
+    virtual_machine   = data.azurerm_virtual_machine.main.id
   }
 }
