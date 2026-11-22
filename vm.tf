@@ -2,7 +2,7 @@ resource "azurerm_virtual_machine" "main" {
   name                  = "${var.prefix}-vm"
   location              = data.azurerm_resource_group.example.location
   resource_group_name   = data.azurerm_resource_group.example.name
-  network_interface_ids = [azurerm_network_interface.main.id]
+  network_interface_ids = [data.azurerm_network_interface.main.id]
   vm_size               = "Standard_DS1_v2"
   depends_on            = [azurerm_subnet_network_security_group_association.example]
 
@@ -38,7 +38,7 @@ resource "azurerm_virtual_machine" "main" {
     type     = "ssh"
     user     = "testadmin"
     password = var.admin_password
-    host     = azurerm_public_ip.example.ip_address
+    host     = data.azurerm_public_ip.example.ip_address
   }
 
   provisioner "remote-exec" {
