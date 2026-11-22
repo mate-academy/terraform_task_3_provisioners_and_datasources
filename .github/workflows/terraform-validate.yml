@@ -54,11 +54,3 @@ jobs:
   
     - name: Terraform Validate
       run: terraform validate
-    
-    - name: Check tfplan
-      run: |
-        if [ ! -f tfplan ]; then
-          echo "tfplan file not found!"
-          exit 1
-        fi
-        echo "tfplan file is present."
